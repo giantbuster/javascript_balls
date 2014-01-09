@@ -41,10 +41,10 @@
 			var el = document.getElementById(html_id);
 
 			//see if the circle is going outside the browser. if it is, reverse the velocity
-			if( this.info.cx > document.body.clientWidth-15 || this.info.cx < 5){
+			if( this.info.cx > document.body.clientWidth-this.info.r || this.info.cx < this.info.r){
 				this.info.velocity.x *= -1;
 			}
-			if( this.info.cy > document.body.clientHeight-15 || this.info.cy < 5){
+			if( this.info.cy > document.body.clientHeight-this.info.r || this.info.cy < this.info.r){
 				this.info.velocity.y *= -1;
 			}
 
@@ -53,6 +53,7 @@
 
 			el.setAttribute("cx", this.info.cx);
 			el.setAttribute("cy", this.info.cy);
+			el.setAttribute("r", this.info.r);
 		}
 
 		//creates the SVG element and returns it
@@ -63,13 +64,15 @@
 	        }
 	        return el;
 	    }
-
 	    this.initialize();
 	}
+
+	growing = false;
 
 	function PlayGround(){
 		var counter = 0;  //counts the number of circles created
 		var circles = []; //array that will hold all the circles created in the app
+
 		//a loop that updates the circle's position on the screen
 		this.loop = function(){
 			for(circle in circles){
@@ -82,13 +85,21 @@
 			circles.push(new_circle);
 		}
 
+		this.grow = function(){
+			if (growing){
+				circles[circles.length-1].info.r++;
+			}
+		}
+
 		//create one circle when the game starts
 		this.createNewCircle(document.body.clientWidth/2, document.body.clientHeight/2, 10);
+		
 	}
 
 	//Main game loop
 	var playground = new PlayGround();
 	setInterval(playground.loop, 15);
+	setInterval(playground.grow, 15);
 	var mouseDownTime;
 	function getTime(){
 		var date = new Date();
@@ -96,10 +107,13 @@
 	}
 	document.onmousedown = function(e){
 		mouseDownTime = getTime();
+		playground.createNewCircle(e.x,e.y, 2);
+		growing = true;
 	}
 	document.onmouseup = function(e){
+		growing = false;
 		timePressed = getTime() - mouseDownTime;
-		playground.createNewCircle(e.x,e.y, 10+(timePressed/10));
+
 	}
 	</script>
 </body>
